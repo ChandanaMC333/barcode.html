@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Barcode Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/dist/zxing.min.js"></script>
+  </head>
+  <body>
+    <h1>Barcode Scanner</h1>
+    <video id="video" width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script>
+      let video = document.getElementById('video');
+      let canvas = document.getElementById('canvas');
+      let ctx = canvas.getContext('2d');
+
+      // Request access to the device's camera
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+
+          // Create a ZXing barcode scanner
+          let scanner = new ZXing.BrowserMultiFormatReader();
+
+          // Scan for barcodes every 100ms
+          setInterval(() => {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let result = scanner.decodeFromImageData(imageData);
+            if (result) {
+              console.log(`Barcode scanned: ${result.text}`);
+              // Do something with the scanned barcode data
+            }
+          }, 100);
+        })
+        .catch(error => {
+          console.error(`Error accessing camera: ${error}`);
+        });
+    </script>
+  </body>
+</html>
